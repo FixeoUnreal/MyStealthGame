@@ -10,19 +10,30 @@ UCLASS()
 class FPSGAME_API AFPSObjectiveActor : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class USceneComponent* SceneComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class USphereComponent* SphereComp;
+
+public:
 	// Sets default values for this actor's properties
 	AFPSObjectiveActor();
 
 protected:
+
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	
-	
+
+
 };
