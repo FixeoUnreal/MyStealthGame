@@ -19,6 +19,9 @@ class AMyStealthGameProjectile : public AActor
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	class UParticleSystem* ExplosionEffect;
+
 public:
 	AMyStealthGameProjectile();
 
