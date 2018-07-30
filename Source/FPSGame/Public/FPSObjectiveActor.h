@@ -11,6 +11,13 @@ class FPSGAME_API AFPSObjectiveActor : public AActor
 {
 	GENERATED_BODY()
 
+	
+
+public:
+	// Sets default values for this actor's properties
+	AFPSObjectiveActor();
+
+protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class USceneComponent* SceneComp;
 
@@ -20,20 +27,18 @@ class FPSGAME_API AFPSObjectiveActor : public AActor
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class USphereComponent* SphereComp;
 
-public:
-	// Sets default values for this actor's properties
-	AFPSObjectiveActor();
-
-protected:
-
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+	class UParticleSystem* PickupFX;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void PlayEffects();
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 };
