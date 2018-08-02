@@ -3,7 +3,7 @@
 #include "FPSAICharacter.h"
 #include <Perception/PawnSensingComponent.h>
 #include <DrawDebugHelpers.h>
-
+#include "TimerManager.h"
 
 // Sets default values
 AFPSAICharacter::AFPSAICharacter()
@@ -21,6 +21,8 @@ void AFPSAICharacter::BeginPlay()
 	
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &AFPSAICharacter::OnPawnSeen);
 	PawnSensingComp->OnHearNoise.AddDynamic(this, &AFPSAICharacter::OnNoiseHeard);
+
+	OriginalRotation = GetActorRotation();
 }
 
 void AFPSAICharacter::OnPawnSeen(APawn* SeenPawn)
@@ -32,6 +34,23 @@ void AFPSAICharacter::OnPawnSeen(APawn* SeenPawn)
 void AFPSAICharacter::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume)
 {
 	DrawDebugSphere(GetWorld(), Location, 32.f, 12, FColor::Green, 10.f);
+
+	FVector Direction = Location - GetActorLocation();
+	Direction.Normalize();
+
+	FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
+	NewLookAt.Pitch = 0;
+	NewLookAt.Roll = 0;
+
+	SetActorRotation(NewLookAt);
+
+	GetWorldTimerManager().ClearTimer(TimerHandle_ResetOrientation);
+	GetWorldTimerManager().SetTimer(TimerHandle_ResetOrientation, this, &AFPSAICharacter::ResetOrientation, 3.f);
+}
+
+void AFPSAICharacter::ResetOrientation()
+{
+	SetActorRotation(OriginalRotation);
 }
 
 // Called every frame
