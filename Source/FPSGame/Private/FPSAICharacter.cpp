@@ -4,6 +4,8 @@
 #include <Perception/PawnSensingComponent.h>
 #include <DrawDebugHelpers.h>
 #include "TimerManager.h"
+#include "FPSGameMode.h"
+#include "Engine/World.h"
 
 // Sets default values
 AFPSAICharacter::AFPSAICharacter()
@@ -29,6 +31,12 @@ void AFPSAICharacter::OnPawnSeen(APawn* SeenPawn)
 {
 	if (!SeenPawn) { return; }
 	DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.f, 12, FColor::Orange, 10.f);
+
+	AFPSGameMode* GameMode = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		GameMode->CompleteMission(SeenPawn, false);
+	}
 }
 
 void AFPSAICharacter::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume)
