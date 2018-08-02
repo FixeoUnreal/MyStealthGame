@@ -2,6 +2,7 @@
 
 #include "FPSAICharacter.h"
 #include <Perception/PawnSensingComponent.h>
+#include <DrawDebugHelpers.h>
 
 
 // Sets default values
@@ -18,6 +19,13 @@ void AFPSAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	PawnSensingComp->OnSeePawn.AddDynamic(this, &AFPSAICharacter::OnPawnSeen);
+}
+
+void AFPSAICharacter::OnPawnSeen(APawn* SeenPawn)
+{
+	if (!SeenPawn) { return; }
+	DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 32.f, 12, FColor::Cyan, 10.f);
 }
 
 // Called every frame
