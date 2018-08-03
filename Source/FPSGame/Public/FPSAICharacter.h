@@ -29,10 +29,21 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent * PawnSensingComp;
 
+	UPROPERTY(EditInstanceOnly, Category = "AI")
+	bool bPatrol;
+
+	UPROPERTY(EditInstanceOnly, Category = "AI", meta = (EditCondition="bPatrol"))
+	TArray<AActor*> PatrollingPoints;
+
+	AActor* CurrentNextPoint;
+
+	int CurrentNextPointIndex = 0;
+
 	FRotator OriginalRotation;
 
 	FTimerHandle TimerHandle_ResetOrientation;
 
+	UPROPERTY(BlueprintReadOnly, Category = "AI")
 	EAIState GuardState = EAIState::Idle;
 
 	// Called when the game starts or when spawned
@@ -52,8 +63,13 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "AI")
 	void OnGuardStateChanged(EAIState NewState);
 
+	void StopAIMovement();
+
+	void MoveToNextPoint(AActor* NextPoint);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 
 };

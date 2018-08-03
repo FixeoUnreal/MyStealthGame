@@ -6,6 +6,8 @@
 #include "TimerManager.h"
 #include "FPSGameMode.h"
 #include "Engine/World.h"
+#include <AIController.h>
+#include <Engine/TargetPoint.h>
 
 // Sets default values
 AFPSAICharacter::AFPSAICharacter()
@@ -25,6 +27,10 @@ void AFPSAICharacter::BeginPlay()
 	PawnSensingComp->OnHearNoise.AddDynamic(this, &AFPSAICharacter::OnNoiseHeard);
 
 	OriginalRotation = GetActorRotation();
+
+	if (!bPatrol || PatrollingPoints.Num() <= 0) { return; }
+	CurrentNextPoint = PatrollingPoints[CurrentNextPointIndex];
+	MoveToNextPoint(CurrentNextPoint);
 }
 
 void AFPSAICharacter::OnPawnSeen(APawn* SeenPawn)
@@ -39,6 +45,7 @@ void AFPSAICharacter::OnPawnSeen(APawn* SeenPawn)
 	}
 
 	SetGuardState(EAIState::Alerted);
+	StopAIMovement();
 }
 
 void AFPSAICharacter::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume)
@@ -60,6 +67,7 @@ void AFPSAICharacter::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Locati
 	GetWorldTimerManager().SetTimer(TimerHandle_ResetOrientation, this, &AFPSAICharacter::ResetOrientation, 3.f);
 
 	SetGuardState(EAIState::Suspicious);
+	StopAIMovement();
 }
 
 void AFPSAICharacter::ResetOrientation()
@@ -69,6 +77,8 @@ void AFPSAICharacter::ResetOrientation()
 	SetActorRotation(OriginalRotation);
 
 	SetGuardState(EAIState::Idle);
+
+	MoveToNextPoint(CurrentNextPoint);
 }
 
 void AFPSAICharacter::SetGuardState(EAIState NewState)
@@ -85,5 +95,33 @@ void AFPSAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!bPatrol) { return; }
+
+	float Distance = FVector::Distance(GetActorLocation(), CurrentNextPoint->GetActorLocation());
+	if (Distance < 100)
+	{
+		// Move to next patrol point
+		CurrentNextPointIndex = (CurrentNextPointIndex + 1) % PatrollingPoints.Num();
+		CurrentNextPoint = PatrollingPoints[CurrentNextPointIndex];
+		GetWorldTimerManager().ClearTimer(TimerHandle_ResetOrientation);
+		GetWorldTimerManager().SetTimer(TimerHandle_ResetOrientation, this, &AFPSAICharacter::ResetOrientation, 5.f);
+	}
+}
+
+void AFPSAICharacter::StopAIMovement()
+{
+	if (Controller)
+	{
+		Controller->StopMovement();
+	}
+}
+
+void AFPSAICharacter::MoveToNextPoint(AActor* NextPoint)
+{
+	if (!Controller || PatrollingPoints.Num() <= 0) { return; }
+	AAIController* AIController = Cast<AAIController>(Controller);
+	if (!AIController) { return; }
+
+	AIController->MoveToActor(NextPoint, 5.f);
 }
 
