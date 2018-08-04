@@ -49,6 +49,21 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 }
 
 
+void AFPSCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	// Rotate player up and down globally (Networking pitch)
+	if (!IsLocallyControlled())
+	{
+		FRotator NewRot = CameraComponent->RelativeRotation;
+		NewRot.Pitch = RemoteViewPitch * 360.f/ 255.f;
+
+		CameraComponent->SetRelativeRotation(NewRot);
+	}
+	
+}
+
 void AFPSCharacter::Fire()
 {
 	ServerFire();
