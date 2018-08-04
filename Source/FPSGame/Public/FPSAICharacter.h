@@ -43,8 +43,11 @@ protected:
 
 	FTimerHandle TimerHandle_ResetOrientation;
 
-	UPROPERTY(BlueprintReadOnly, Category = "AI")
+	UPROPERTY(ReplicatedUsing=OnRep_GuardState)
 	EAIState GuardState = EAIState::Idle;
+
+	UFUNCTION()
+	void OnRep_GuardState();
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -70,6 +73,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 
 };

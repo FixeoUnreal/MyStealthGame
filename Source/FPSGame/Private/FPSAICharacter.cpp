@@ -8,6 +8,7 @@
 #include "Engine/World.h"
 #include <AIController.h>
 #include <Engine/TargetPoint.h>
+#include <UnrealNetwork.h>
 
 // Sets default values
 AFPSAICharacter::AFPSAICharacter()
@@ -16,6 +17,11 @@ AFPSAICharacter::AFPSAICharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
+}
+
+void AFPSAICharacter::OnRep_GuardState()
+{
+	OnGuardStateChanged(GuardState);
 }
 
 // Called when the game starts or when spawned
@@ -87,7 +93,7 @@ void AFPSAICharacter::SetGuardState(EAIState NewState)
 
 	GuardState = NewState;
 
-	OnGuardStateChanged(GuardState);
+	OnRep_GuardState();
 }
 
 // Called every frame
@@ -123,5 +129,12 @@ void AFPSAICharacter::MoveToNextPoint(AActor* NextPoint)
 	if (!AIController) { return; }
 
 	AIController->MoveToActor(NextPoint, 5.f);
+}
+
+void AFPSAICharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AFPSAICharacter, GuardState);
 }
 
